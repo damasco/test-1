@@ -1,6 +1,7 @@
 <?php
 
 use Faker\Generator as Faker;
+use Faker\Provider\Lorem;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,13 +14,11 @@ use Faker\Generator as Faker;
 |
 */
 
-$factory->define(App\User::class, function (Faker $faker) {
-    static $password;
-
+$factory->define(App\Product::class, function (Faker $faker) {
+    $faker->addProvider(new Lorem($faker));
+    
     return [
-        'name' => $faker->firstName,
-        'email' => $faker->unique()->safeEmail,
-        'password' => $password ?: $password = bcrypt('secret'),
-        'remember_token' => str_random(10),
+        'name' => $faker->word,
+        'price' => $faker->numberBetween(100, 1000),
     ];
 });

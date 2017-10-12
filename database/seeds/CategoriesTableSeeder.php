@@ -12,7 +12,7 @@ class CategoriesTableSeeder extends Seeder
      */
     public function run()
     {
-        Category::truncate();
+        DB::table('categories')->delete();
         factory(Category::class, 5)->create();
     }
 }

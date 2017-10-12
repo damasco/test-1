@@ -7,6 +7,7 @@ use App\Category;
 use Illuminate\Http\Request;
 use App\Http\Resources\Product as ProductResource;
 use App\Http\Resources\ProductCollection;
+use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
@@ -19,7 +20,7 @@ class ProductController extends Controller
     {
         $category = Category::findOrFail($categoryId);    
         $product = $category->products()->get();
-        return new ProductCollection($product);
+        return response(new ProductCollection($product));
     }
 
     /**
@@ -30,7 +31,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        return response()->json(new ProductResource($product), 200);
+        return response(new ProductResource($product));
     }
 
     /**
@@ -41,9 +42,12 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $product = Product::create($request->all());
+        $this->validator($request->all())->validate();
 
-        return response()->json(new ProductResource($product), 201);
+        $product = Product::create($request->all());
+        $product->categories()->sync($request->categories);
+
+        return response(new ProductResource($product), 201);
     }
 
     /**
@@ -55,9 +59,12 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
+        $this->validator($request->all())->validate();
+        
         $product->update($request->all());
+        $product->categories()->sync($request->categories);
 
-        return response()->json(new ProductResource($product), 200);
+        return response(new ProductResource($product));
     }
 
     /**
@@ -71,5 +78,18 @@ class ProductController extends Controller
         $product->delete();
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * @param  array  $data
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
+    protected function validator(array $data)
+    {
+        return Validator::make($data, [
+            'name' => 'required|string|max:255',
+            'price' => 'required|integer',
+            'categories' => 'required|exists:categories,id',
+        ]);
     }
 }

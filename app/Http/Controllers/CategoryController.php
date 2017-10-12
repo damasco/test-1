@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Category;
 use App\Http\Resources\CategoryCollection;
 use App\Http\Resources\Category as CategoryResource;
+use Illuminate\Support\Facades\Validator;
 
 class CategoryController extends Controller
 {
@@ -16,7 +17,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return new CategoryCollection(Category::paginate(5));
+        return response(new CategoryCollection(Category::paginate(5)));
     }
 
     /**
@@ -27,7 +28,7 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        return response()->json(new CategoryResource($category), 200);
+        return response(new CategoryResource($category));
     }
 
     /**
@@ -38,9 +39,10 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+        $this->validator($request->all())->validate();
         $category = Category::create($request->all());
 
-        return response()->json(new CategoryResource($category), 201);
+        return response(new CategoryResource($category), 201);
     } 
 
     /**
@@ -52,9 +54,10 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
+        $this->validator($request->all())->validate();
         $category->update($request->all());
 
-        return response()->json(new CategoryResource($category), 200);
+        return response(new CategoryResource($category));
     }
 
     /**
@@ -68,5 +71,16 @@ class CategoryController extends Controller
         $category->delete();
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * @param  array  $data
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
+    protected function validator(array $data)
+    {
+        return Validator::make($data, [
+            'name' => 'required|string|max:255',
+        ]);
     }
 }

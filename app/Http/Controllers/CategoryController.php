@@ -17,7 +17,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return response(new CategoryCollection(Category::paginate(5)));
+        return new CategoryCollection(Category::paginate(5));
     }
 
     /**
@@ -28,7 +28,7 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        return response(new CategoryResource($category));
+        return new CategoryResource($category);
     }
 
     /**
@@ -42,7 +42,7 @@ class CategoryController extends Controller
         $this->validator($request->all())->validate();
         $category = Category::create($request->all());
 
-        return response(new CategoryResource($category), 201);
+        return (new CategoryResource($category))->response()->setStatusCode(201);
     } 
 
     /**
@@ -57,7 +57,7 @@ class CategoryController extends Controller
         $this->validator($request->all())->validate();
         $category->update($request->all());
 
-        return response(new CategoryResource($category));
+        return new CategoryResource($category);
     }
 
     /**

@@ -20,7 +20,7 @@ class ProductController extends Controller
     {
         $category = Category::findOrFail($categoryId);    
         $product = $category->products()->get();
-        return response(new ProductCollection($product));
+        return new ProductCollection($product);
     }
 
     /**
@@ -31,7 +31,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        return response(new ProductResource($product));
+        return new ProductResource($product);
     }
 
     /**
@@ -47,7 +47,7 @@ class ProductController extends Controller
         $product = Product::create($request->all());
         $product->categories()->sync($request->categories);
 
-        return response(new ProductResource($product), 201);
+        return (new ProductResource($product))->response()->setStatusCode(201);
     }
 
     /**
@@ -64,7 +64,7 @@ class ProductController extends Controller
         $product->update($request->all());
         $product->categories()->sync($request->categories);
 
-        return response(new ProductResource($product));
+        return new ProductResource($product);
     }
 
     /**
